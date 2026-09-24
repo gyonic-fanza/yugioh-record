@@ -1,4 +1,6 @@
 import {uid,stamp,STORES} from './storage.js';
+import {planBattlesCsv} from './csvImport.js';
+import {planCalculatorImport} from './calculatorImport.js';
 import {allPeriods,regulationLabel} from './defaultPeriods.js';
 import {typeId} from './cardTypes.js';
 import {matchingDecks,normalizedDeckName} from './deckSelection.js';
@@ -48,6 +50,16 @@ export class AppService{
   const newTags=tags.filter(tag=>!existing.some(t=>t.name===tag)).map(tag=>({id:uid(),userId:null,name:tag,createdAt:now,updatedAt:now}));
   await this.repo.saveBattleGraph(match,gameRows,newTags,newDeck);
   return match;
+ }
+ async importBattlesCsv(csv){const old=await this.repo.snapshot(),plan=planBattlesCsv(csv,old);
+  if(!plan.summary.imported)return plan.summary;
+  if(!await this.repo.replaceAllIfUnchanged(old,plan.data))throw Error('取込中に記録が更新されました。CSVを再選択してください');
+  return plan.summary;
+ }
+ async importCalculatorCsv(csv,inputs){const old=await this.repo.snapshot(),plan=planCalculatorImport(csv,inputs,old);
+  if(!plan.summary.imported)return plan.summary;
+  if(!await this.repo.replaceAllIfUnchanged(old,plan.data))throw Error('取込中に記録が更新されました。CSVを再選択してください');
+  return plan.summary;
  }
  async deleteBattle(id){await this.repo.deleteBattleGraph(id);}
  async addPeriod(fields){const startDate=fields.startDate,endDate=fields.endDate;if(!/^\d{4}-\d{2}-\d{2}$/.test(startDate)||!/^\d{4}-\d{2}-\d{2}$/.test(endDate)||startDate>endDate)throw Error('開始日・終了日を確認してください');const label=regulationLabel(startDate),now=stamp(),period={id:uid(),userId:null,label,startDate,endDate,createdAt:now,updatedAt:now};await this.repo.put('periods',period);return period;}

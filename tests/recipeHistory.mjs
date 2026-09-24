@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {orderVersions,recipeDiff} from '../js/recipeHistory.js';
+
+const card=(name,count,type='UNKNOWN')=>({name,count,type});
+const original={id:'v1',createdAt:'2026-09-23T10:00:00Z',cards:{main:[card('烙印融合',1,'SPELL'),card('アルベル',3,'MONSTER'),card('灰流うらら',2,'MONSTER')],extra:[card('ミラジェイド',1,'MONSTER')],side:[card('ドロール',2,'MONSTER')]}};
+const updated={id:'v2',createdAt:'2026-09-24T10:00:00Z',cards:{main:[card('烙印融合',1,'SPELL'),card('アルベル',2,'MONSTER'),card('うさぎ',2,'MONSTER'),card('灰流うらら',2,'UNKNOWN')],extra:[],side:[card('ドロール',3,'MONSTER'),card('ミラジェイド',1,'MONSTER')]}};
+const diff=recipeDiff(original,updated);
+assert.equal(diff.added,4);
+assert.equal(diff.removed,2);
+assert.equal(diff.total,6);
+assert.equal(diff.changed,3);
+assert.deepEqual(diff.zones.main.map(x=>[x.name,x.before,x.after,x.delta]),[['アルベル',3,2,-1],['うさぎ',0,2,2],['灰流うらら',2,2,0]]);
+assert.deepEqual(diff.zones.extra.map(x=>[x.name,x.delta]),[['ミラジェイド',-1]]);
+assert.deepEqual(diff.zones.side.map(x=>[x.name,x.delta]),[['ドロール',1],['ミラジェイド',1]]);
+assert.equal(diff.zones.main[2].typeBefore,'MONSTER');
+assert.equal(diff.zones.main[2].typeAfter,'UNKNOWN');
+assert.equal(recipeDiff(updated,updated).total,0);
+assert.equal(recipeDiff(null,original),null);
+assert.equal(recipeDiff({cards:{}},{cards:{}}).total,0);
+assert.deepEqual(orderVersions([updated,original]).map(x=>x.id),['v1','v2']);
+console.log('PASS: chronological recipe versions, zone moves, additions, removals, count and type changes');
