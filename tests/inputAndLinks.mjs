@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {opponentNames,suggestOpponents} from '../js/opponentSuggestions.js';
+import {eventOptionLabel,eventRecipeVersion} from '../js/eventLinks.js';
+const history=[{opponentDeckName:'キラーチューン'},{opponentDeckName:'アルスマグナ'},{opponentDeckName:'キラーチューン'},{opponentDeckName:'ｴﾙﾌｪﾝﾉｰﾂ'},{opponentDeckName:''}];
+const names=opponentNames(history);
+assert.equal(names.length,3);assert.deepEqual(names,[...names].sort((a,b)=>a.normalize('NFKC').localeCompare(b.normalize('NFKC'),'ja')||a.localeCompare(b,'ja')));
+assert.deepEqual(suggestOpponents(names,'キラー'),['キラーチューン']);
+assert.deepEqual(suggestOpponents(names,'エルフェン'),['ｴﾙﾌｪﾝﾉｰﾂ']);
+assert.equal(eventOptionLabel({name:'ランキング',date:'2026-09-24',venue:'駅前店'}),'2026/09/24：[駅前店] ランキング');
+assert.equal(eventOptionLabel({name:'交流会',date:'2026-09-25'}),'2026/09/25：[会場未設定] 交流会');
+const matches=[{eventId:'e1',deckId:'d1',deckVersionId:'v1',playedAt:'2026-09-01'},{eventId:'e1',deckId:'d1',deckVersionId:'v2',playedAt:'2026-09-24'},{eventId:'e2',deckId:'d1',deckVersionId:'v3',playedAt:'2026-09-25'}];
+assert.equal(eventRecipeVersion(matches,'e1','d1'),'v2');
+assert.equal(eventRecipeVersion(matches,'e1','d2'),null);
+console.log('PASS: sorted opponent suggestions and event labels/recipe target');

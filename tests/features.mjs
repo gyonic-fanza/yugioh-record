@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import {searchDecksByCard} from '../js/deckSearch.js';
+import {lastUsedRecord,recordDateDefaults} from '../js/recordDefaults.js';
+const decks=[{id:'d1',name:'烙印'},{id:'d2',name:'キラーチューン'}];
+const versions=[{id:'v1',deckId:'d1',label:'旧',cards:{main:[{name:'烙印融合',count:1}],extra:[],side:[]}},{id:'v2',deckId:'d1',label:'新',cards:{main:[],extra:[],side:[{name:'烙印融合',count:2}]}},{id:'v3',deckId:'d2',label:'初期',cards:{main:[{name:'別カード',count:3}]}}];
+assert.equal(searchDecksByCard(decks,versions,'').length,2);
+const results=searchDecksByCard(decks,versions,'烙印融');
+assert.deepEqual(results.map(r=>r.deck.id),['d1']);
+assert.deepEqual(results[0].hits.map(h=>[h.version.id,h.zone,h.card.count]),[['v1','main',1],['v2','side',2]]);
+assert.equal(searchDecksByCard(decks,versions,'存在しない').length,0);
+assert.equal(lastUsedRecord([{id:'a',createdAt:'2026-09-24T10:00:00Z',playedAt:'2026-09-01'},{id:'b',createdAt:'2026-09-23T10:00:00Z',playedAt:'2026-09-24'}]).id,'a');
+assert.equal(lastUsedRecord([]),null);
+const previous={playedAt:'2026-09-12',playedTime:'18:40',opponentDeckName:'相手'};
+assert.deepEqual(recordDateDefaults(null,previous),{date:'2026-09-12'});
+assert.deepEqual(recordDateDefaults({playedAt:'2026-09-10',playedTime:''},previous),{date:'2026-09-10'});
+assert.deepEqual(recordDateDefaults(null,null,new Date(2026,8,24,9,5)),{date:'2026-09-24'});
+console.log('PASS: deck card search across versions and last used record');
