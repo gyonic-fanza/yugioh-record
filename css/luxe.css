@@ -17,3 +17,11 @@ input,select,textarea,.typeahead-combo{background:color-mix(in srgb,var(--surfac
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
 
 #cloud-status{overflow-wrap:anywhere;padding:9px 12px;border-left:2px solid var(--gold);background:color-mix(in srgb,var(--gold) 7%,var(--surface));border-radius:3px 8px 8px 3px}#cloud-config-form,#cloud-login-form{display:grid;gap:12px}#cloud-config-form input,#cloud-login-form input{min-width:0}
+
+/* iOS date controls retain a wide native minimum even inside minmax(0, 1fr). */
+#record-form .record-meta-grid>label,
+#record-form .record-meta-grid input,
+#record-form .record-meta-grid select{min-width:0;max-width:100%}
+@media(max-width:520px){
+ #record-form .record-meta-grid{grid-template-columns:minmax(0,1fr)}
+}

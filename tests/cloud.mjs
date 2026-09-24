@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
-import {reconcile,emptySnapshot,fingerprint,SupabaseCloudRepository,CloudController,saveCloudConfig,cloudConfig} from '../js/cloud.js';
+import {reconcile,emptySnapshot,fingerprint,SupabaseCloudRepository,CloudController,saveCloudConfig,cloudConfig,DEFAULT_CLOUD_CONFIG} from '../js/cloud.js';
 const storage=new Map();globalThis.localStorage={getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)};
+assert.deepEqual(cloudConfig(),DEFAULT_CLOUD_CONFIG);
 assert.throws(()=>saveCloudConfig({url:'http://example.com',key:'abc'}),/URL/);
 assert.throws(()=>saveCloudConfig({url:'https://demo.supabase.co',key:'sb_secret_bad'}),/publishable key/);
 saveCloudConfig({url:'https://demo.supabase.co/',key:'sb_publishable_example'});
