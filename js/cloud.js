@@ -67,6 +67,14 @@ export class CloudController{
   if(sessionData.session){const {data,error}=await this.client.auth.getUser();if(error)throw error;this.user=data.user||null;}else this.user=null;this.listener();
  }
  async sendLink(email){if(!this.client)throw Error('クラウド接続を設定してください');const {error}=await this.client.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;}
+ async verifyEmailCode(email,code){
+  if(!this.client)throw Error('クラウド接続を設定してください');
+  const token=String(code||'').trim();
+  if(!/^\d{6}$/.test(token))throw Error('メールに届いた6桁のコードを入力してください');
+  const {data,error}=await this.client.auth.verifyOtp({email:String(email||'').trim(),token,type:'email'});
+  if(error)throw error;
+  return data;
+ }
  async signOut(){if(!this.client)return;const {error}=await this.client.auth.signOut({scope:'local'});if(error)throw error;this.user=null;this.listener();}
  async sync(){if(!this.user)throw Error('先にログインしてください');if(this.busy)throw Error('同期中です');this.busy=true;this.listener();try{
   const userId=this.user.id,meta=await this.repo.getSyncMeta();if(meta?.ownerId&&meta.ownerId!==userId)throw Error('この端末のデータは別のアカウントに紐付いています。元のアカウントでログインしてください');

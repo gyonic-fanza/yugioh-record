@@ -25,3 +25,6 @@ input,select,textarea,.typeahead-combo{background:color-mix(in srgb,var(--surfac
 @media(max-width:520px){
  #record-form .record-meta-grid{grid-template-columns:minmax(0,1fr)}
 }
+#cloud-code-form{display:grid;gap:12px;border-top:1px solid var(--line);padding-top:15px}
+#cloud-code-form input{min-width:0}
+@media(display-mode:standalone){.top{padding-top:calc(10px + env(safe-area-inset-top));height:calc(76px + env(safe-area-inset-top))}}

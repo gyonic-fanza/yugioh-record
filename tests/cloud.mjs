@@ -34,3 +34,11 @@ const persisted={getSyncMeta:async()=>null,snapshot:async()=>local,replaceAllIfU
 const retry=new CloudController(persisted);retry.user={id:owner};retry.client={from(){return {select(){return this;},eq(){return this;},order(){return this;},async range(){return {data:[],error:null};},async upsert(){return {error:null};}};}};
 await assert.rejects(retry.sync(),/もう一度同期/);
 console.log('PASS: initial cloud upload, no-op, two-way deletions, conflicts, pagination and batches');
+const otp=new CloudController({});
+let verified;
+otp.client={auth:{async verifyOtp(input){verified=input;return {data:{user:{id:owner}},error:null};}}};
+await assert.rejects(otp.verifyEmailCode('player@example.com','123'),/6桁/);
+assert.equal((await otp.verifyEmailCode('player@example.com',' 123456 ')).user.id,owner);
+assert.deepEqual(verified,{email:'player@example.com',token:'123456',type:'email'});
+otp.client.auth.verifyOtp=async()=>({error:new Error('期限切れ')});
+await assert.rejects(otp.verifyEmailCode('player@example.com','123456'),/期限切れ/);
