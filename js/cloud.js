@@ -70,7 +70,7 @@ export class CloudController{
  async verifyEmailCode(email,code){
   if(!this.client)throw Error('クラウド接続を設定してください');
   const token=String(code||'').trim();
-  if(!/^\d{6}$/.test(token))throw Error('メールに届いた6桁のコードを入力してください');
+  if(!token)throw Error('メールに届いたログインコードを入力してください');
   const {data,error}=await this.client.auth.verifyOtp({email:String(email||'').trim(),token,type:'email'});
   if(error)throw error;
   return data;

@@ -37,8 +37,10 @@ console.log('PASS: initial cloud upload, no-op, two-way deletions, conflicts, pa
 const otp=new CloudController({});
 let verified;
 otp.client={auth:{async verifyOtp(input){verified=input;return {data:{user:{id:owner}},error:null};}}};
-await assert.rejects(otp.verifyEmailCode('player@example.com','123'),/6桁/);
+await assert.rejects(otp.verifyEmailCode('player@example.com','  '),/ログインコード/);
 assert.equal((await otp.verifyEmailCode('player@example.com',' 123456 ')).user.id,owner);
 assert.deepEqual(verified,{email:'player@example.com',token:'123456',type:'email'});
+assert.equal((await otp.verifyEmailCode('player@example.com',' 12345678 ')).user.id,owner);
+assert.deepEqual(verified,{email:'player@example.com',token:'12345678',type:'email'});
 otp.client.auth.verifyOtp=async()=>({error:new Error('期限切れ')});
 await assert.rejects(otp.verifyEmailCode('player@example.com','123456'),/期限切れ/);
