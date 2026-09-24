@@ -2,12 +2,7 @@ import {STORES,stamp} from './storage.js';
 
 // Only the public project URL and publishable key belong in the browser.
 const CONFIG_KEY='ocg-cloud-config';
-// Publishable keys are designed for browser use. Access is constrained by RLS.
-export const DEFAULT_CLOUD_CONFIG=Object.freeze({
- url:'https://uazxehggtzuubwyfisvo.supabase.co',
- key:'sb_publishable_iPXgMK4x3Ij1pRE-rxCpZg_BSceLAwO'
-});
-export const cloudConfig=()=>{try{return JSON.parse(localStorage.getItem(CONFIG_KEY))||DEFAULT_CLOUD_CONFIG;}catch{return DEFAULT_CLOUD_CONFIG;}};
+export const cloudConfig=()=>{try{return JSON.parse(localStorage.getItem(CONFIG_KEY))||null;}catch{return null;}};
 export function saveCloudConfig(input){
  const url=String(input.url||'').trim().replace(/\/$/,'');
  const key=String(input.key||'').trim();

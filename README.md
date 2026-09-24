@@ -24,7 +24,7 @@
 
 ## GitHub Pages
 
-このディレクトリの中身をリポジトリのルートへ置き、GitHubの **Settings → Pages → Build and deployment → Deploy from a branch** で対象ブランチの `/ (root)` を指定します。サブパスでも動くよう全アセットを相対パスで参照しています。ビルドは不要です。配布版には指定済みのSupabaseプロジェクトURLと公開キーを初期設定として同梱しています。GitHub Pagesの公開操作とURL取得はリポジトリ所有者が行います。
+このディレクトリの中身をリポジトリのルートへ置き、GitHubの **Settings → Pages → Build and deployment → Deploy from a branch** で対象ブランチの `/ (root)` を指定します。サブパスでも動くよう全アセットを相対パスで参照しています。ビルドは不要です。Supabaseの接続先は配布版に同梱せず、各端末で設定します。GitHub Pagesの公開操作とURL取得はリポジトリ所有者が行います。
 
 ## iPhoneのホーム画面から使用
 
@@ -35,9 +35,9 @@
 
 ## クラウド同期の設定（Phase 3）
 
-1. 今回指定されたSupabaseプロジェクトを使用します。`ocg_records` テーブルが既に存在し、未ログインの読み取りが拒否されることを公開キーで確認済みです。初めて別のプロジェクトを利用する場合は、SQL Editorで [`sql/supabase.sql`](sql/supabase.sql) を実行して所有者ごとのRow Level Securityを設定します。
+1. Supabaseプロジェクトを用意します。`ocg_records` テーブルが既に存在し、未ログインの読み取りが拒否されることを公開キーで確認済みです。初めて別のプロジェクトを利用する場合は、SQL Editorで [`sql/supabase.sql`](sql/supabase.sql) を実行して所有者ごとのRow Level Securityを設定します。
 2. Authentication → ProvidersでEmailログインを有効にします。Authentication → URL ConfigurationのSite URL / Redirect URLsに、公開したGitHub PagesのURL（リポジトリのサブパスを含む `https://<user>.github.io/<repo>/`）を設定します。メールの送信設定や利用上限はSupabase側の設定に従います。
-3. アプリには今回指定されたプロジェクトURLと **publishable key** を初期設定済みです。各端末で手入力する必要はありません。設定画面の「接続先を保存」は別プロジェクトへの接続に使い、端末ごとの手動設定がある場合はその設定を優先します。**service_role / secret keyは絶対に入力しないでください。**
+3. アプリの設定画面でプロジェクトURLと **publishable key** を入力して「接続先を保存」を押します。初期値は空欄です。すでに端末に保存した接続先は更新後も引き続き表示・利用されます。**service_role / secret keyは絶対に入力しないでください。**
 4. **ホーム画面版でのログインにはSupabase側のメール設定が必要です。** Supabase Dashboard の **Authentication → Email Templates → Magic Link** を開き、メール本文に `<p>ログインコード: {{ .Token }}</p>` を追加して保存します。既存の `{{ .ConfirmationURL }}` のリンクは残して構いません。この設定をするまではメールにコードが載らないため、ホーム画面版のコード認証は使えません。
 5. ホーム画面版では設定の「ログインメールを送信」でメールを送り、同じ画面の「ログインコード」に届いたコードを入力します。Safariで開いた場合は従来のリンク認証も使えます。最初の同期で既存の端末データとクラウドのデータをIDごとに突き合わせます。二台目以降も同じメールアカウントでログインしてください。
 

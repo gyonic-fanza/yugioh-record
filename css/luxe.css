@@ -22,8 +22,13 @@ input,select,textarea,.typeahead-combo{background:color-mix(in srgb,var(--surfac
 #record-form .record-meta-grid>label,
 #record-form .record-meta-grid input,
 #record-form .record-meta-grid select{min-width:0;max-width:100%}
+#event-form .event-meta-grid>label,
+#event-edit-form .event-meta-grid>label,
+#event-form .event-meta-grid input,
+#event-edit-form .event-meta-grid input{min-width:0;max-width:100%}
 @media(max-width:520px){
  #record-form .record-meta-grid{grid-template-columns:minmax(0,1fr)}
+ #event-form .event-meta-grid,#event-edit-form .event-meta-grid{grid-template-columns:minmax(0,1fr)}
 }
 #cloud-code-form{display:grid;gap:12px;border-top:1px solid var(--line);padding-top:15px}
 #cloud-code-form input{min-width:0}
