@@ -21,23 +21,24 @@ export class AppService{
  }
  async addEvent(fields){const name=clean(fields.name);if(!name)throw Error('イベント名を入力してください');const selected=await this.checkRegulation(fields.regulationId);const now=stamp();const event={id:uid(),userId:null,name,date:fields.date||today(),venue:clean(fields.venue),regulationId:selected,deckId:fields.deckId||null,rank:clean(fields.rank),participants:fields.participants?Number(fields.participants):null,notes:clean(fields.notes),createdAt:now,updatedAt:now};await this.repo.put('events',event);return event;}
  async updateEvent(id,fields){const old=await this.repo.get('events',id);if(!old)throw Error('イベントが見つかりません');const name=clean(fields.name);if(!name)throw Error('イベント名を入力してください');const regulationId=await this.checkRegulation(fields.regulationId);if(fields.deckId&&!await this.repo.get('decks',fields.deckId))throw Error('使用デッキが見つかりません');const updated={...old,name,date:fields.date||old.date,venue:clean(fields.venue),regulationId,deckId:fields.deckId||null,rank:clean(fields.rank),participants:fields.participants?Number(fields.participants):null,notes:clean(fields.notes),updatedAt:stamp()};await this.repo.put('events',updated);return updated;}
- async saveBattle(input,id=null){
+ async prepareBattle(input,id=null,context=null){
   const name=clean(input.deckName),opponent=clean(input.opponent);
   if(!name&&!input.deckId)throw Error('使用デッキを入力してください');
   if(!opponent)throw Error('相手デッキを入力してください');
   if(!['MATCH','SINGLE'].includes(input.format))throw Error('対戦形式が不正です');
-  const event=input.eventId?await this.repo.get('events',input.eventId):null;
+  const event=input.eventId?(context?context.events.find(e=>e.id===input.eventId):await this.repo.get('events',input.eventId)):null;
   if(input.eventId&&!event)throw Error('イベントが見つかりません');
-  const decks=await this.repo.list('decks');
+  const decks=context?.decks||await this.repo.list('decks');
   let deck=input.deckId?decks.find(d=>d.id===input.deckId):null;
   if(input.deckId&&!deck)throw Error('使用デッキを選び直してください');
   if(deck&&name&&normalizedDeckName(deck.name)!==normalizedDeckName(name))throw Error('使用デッキを選び直してください');
   if(!deck){const found=matchingDecks(decks,name);if(found.length>1)throw Error('同名のデッキが複数あります。候補から選択してください');deck=found[0]||null;}
   const now=stamp(),newDeck=!deck?{id:uid(),userId:null,name,regulationId:event?.regulationId||null,createdAt:now,updatedAt:now}:null;
   deck=deck||newDeck;
+  if(context&&newDeck)context.decks.push(newDeck);
   const old=id?await this.repo.get('matches',id):null;
   if(id&&!old)throw Error('対象の対戦が見つかりません');
-  const versions=(await this.repo.list('deckVersions')).filter(v=>v.deckId===deck.id);
+  const versions=(context?.versions||await this.repo.list('deckVersions')).filter(v=>v.deckId===deck.id);
   const version=versions.find(v=>v.id===input.deckVersionId)||null;
   if(versions.length&&!version&&!(old?.deckId===deck.id&&!old.deckVersionId&&!input.deckVersionId))throw Error('デッキバージョンを選んでください');
   if(!versions.length&&input.deckVersionId)throw Error('デッキバージョンを選び直してください');
@@ -49,10 +50,26 @@ export class AppService{
   const tags=[...new Set(String(input.tags||'').split(/[,、\n]/).map(clean).filter(Boolean))];
   const match={id:id||uid(),userId:null,eventId:input.eventId||null,deckId:deck.id,deckVersionId:version?.id||null,opponentDeckName:opponent,opponentDeckId:null,format:input.format,playedAt:input.date||today(),result,resultSource:input.override?'manual':'auto',notes:clean(input.notes),tags,createdAt:old?.createdAt||now,updatedAt:now};
   let number=0;const gameRows=games.map(g=>({id:uid(),userId:null,matchId:match.id,number:++number,turn:g.turn,result:g.result,createdAt:now,updatedAt:now}));
-  const existing=await this.repo.list('tags');
+  const existing=context?.tags||await this.repo.list('tags');
   const newTags=tags.filter(tag=>!existing.some(t=>t.name===tag)).map(tag=>({id:uid(),userId:null,name:tag,createdAt:now,updatedAt:now}));
+  if(context)context.tags.push(...newTags);
+  return {match,gameRows,newTags,newDeck};
+ }
+ async saveBattle(input,id=null){
+  const {match,gameRows,newTags,newDeck}=await this.prepareBattle(input,id);
   await this.repo.saveBattleGraph(match,gameRows,newTags,newDeck);
   return match;
+ }
+ async saveBattles(inputs){
+  if(!Array.isArray(inputs)||!inputs.length)throw Error('対戦を追加してください');
+  const context={decks:await this.repo.list('decks'),versions:await this.repo.list('deckVersions'),events:await this.repo.list('events'),tags:await this.repo.list('tags')};
+  const plans=[];
+  for(let i=0;i<inputs.length;i++){
+   try{plans.push(await this.prepareBattle(inputs[i],null,context));}
+   catch(error){throw Error(`${i+1}件目：${error.message}`);}
+  }
+  await this.repo.saveBattleBatch(plans);
+  return plans.map(({match})=>match);
  }
  async importBattlesCsv(csv){const old=await this.repo.snapshot(),plan=planBattlesCsv(csv,old);
   if(!plan.summary.imported)return plan.summary;

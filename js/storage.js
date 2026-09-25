@@ -48,6 +48,16 @@ export class IndexedDBRepository{
     const read=gs.getAll();read.onsuccess=()=>{if(newDeck)tx.objectStore('decks').put(newDeck);for(const old of read.result)if(old.matchId===match.id)gs.delete(old.id);for(const game of games)gs.put(game);ms.put(match);for(const tag of newTags)ts.put(tag);};
     tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('保存が中断されました'));
   }));}
+  saveBattleBatch(plans){return this.withConnection(db=>new Promise((resolve,reject)=>{
+    const tx=db.transaction(['matches','games','tags','decks'],'readwrite');
+    for(const {match,gameRows,newTags,newDeck} of plans){
+      if(newDeck)tx.objectStore('decks').put(newDeck);
+      tx.objectStore('matches').put(match);
+      for(const game of gameRows)tx.objectStore('games').put(game);
+      for(const tag of newTags)tx.objectStore('tags').put(tag);
+    }
+    tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('一括保存が中断されました'));
+  }));}
   deleteBattleGraph(id){return this.withConnection(db=>new Promise((resolve,reject)=>{
     const tx=db.transaction(['matches','games'],'readwrite'),ms=tx.objectStore('matches'),gs=tx.objectStore('games'),read=gs.getAll();
     read.onsuccess=()=>{for(const g of read.result)if(g.matchId===id)gs.delete(g.id);ms.delete(id);};

@@ -10,6 +10,7 @@ const shapes={
  monster:'<path d="m12 3 2.5 5.8 6.5.6-4.9 4.2 1.5 6.4-5.6-3.4-5.6 3.4 1.5-6.4L3 9.4l6.5-.6z"/>',
  spell:'<path d="m13 2-8 11h6l-1 9 9-12h-6z"/>',
  trap:'<path d="M12 2 4 5v6c0 5 3.4 8.6 8 11 4.6-2.4 8-6 8-11V5zM9 11l2 2 4-4"/>',
- unknown:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 3.7 2.2c-1 .6-1.3 1-1.3 2.3m0 3h.01"/>'
+ unknown:'<circle cx="12" cy="12" r="9"/><path d="M9.6 9a2.5 2.5 0 1 1 3.7 2.2c-1 .6-1.3 1-1.3 2.3m0 3h.01"/>',
+ help:'<circle cx="12" cy="12" r="10"/><path d="M9.6 9a2.6 2.6 0 1 1 3.8 2.3c-1.1.7-1.4 1.1-1.4 2.6m0 3h.01"/>'
 };
 export const icon=(name)=>`<svg class="icon icon-${name}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${shapes[name]||shapes.unknown}</svg>`;
