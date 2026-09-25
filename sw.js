@@ -1,10 +1,10 @@
 // App shell only: IndexedDB holds records; authentication and remote data are never cached.
-const CACHE = 'ocg-record-shell-v12';
+const CACHE = 'ocg-record-shell-v15';
 const SHELL = [
  './', './index.html', './manifest.webmanifest', './css/style.css', './css/luxe.css',
  './js/main.js', './js/storage.js', './js/services.js', './js/cloud.js',
  './js/analysisService.js', './js/analysisView.js', './js/pdfImport.js',
- './js/defaultPeriods.js', './js/deckSearch.js', './js/deckSelection.js',
+ './js/defaultPeriods.js', './js/deckSearch.js', './js/deckSelection.js', './js/searchText.js',
  './js/recordDefaults.js', './js/opponentSuggestions.js', './js/eventLinks.js',
  './js/cardTypes.js', './js/recipeHistory.js', './js/icons.js', './js/csvImport.js', './js/calculatorImport.js', './js/community.js', './js/communityView.js',
  './assets/home.svg', './assets/record.svg', './assets/events.svg',

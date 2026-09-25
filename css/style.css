@@ -7,19 +7,13 @@
 .file-btn{position:relative}.file-btn input{display:block;position:absolute;width:1px;height:1px;min-height:0;padding:0;opacity:0;clip-path:inset(50%);pointer-events:none}
 .recipe-counts{padding:10px;border-radius:9px;background:var(--surface2);font-size:12px;font-weight:800;color:var(--accent)}
 .recipe-card-link{display:block;width:100%;min-height:44px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left;padding:8px 3px;overflow-wrap:anywhere;color:var(--text)}.recipe-card-link:active,.recipe-card-link:focus-visible{color:var(--accent);outline-color:var(--accent)}
-/* Card kind is carried by each DeckCard. Legacy cards remain visibly unclassified. */
+.recipe-zone>.recipe-card-link:last-child{border-bottom:0}
+.suggest-field{position:relative;min-width:0}.suggest-field>label{display:block;margin-bottom:6px;font-size:12px;font-weight:700}
+.search-suggestions:not([hidden]){position:absolute;top:100%;left:0;right:0;z-index:7;max-height:220px;overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:5px}
+.search-suggestions[hidden]{display:none}.search-suggestions button{display:block;width:100%;min-height:44px;padding:10px;text-align:left;background:transparent;border:0;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.search-suggestions button:last-child{border-bottom:0}.search-suggestions button:focus-visible{outline:2px solid var(--accent)}
 .icon{display:inline-block;width:20px;height:20px;flex:none;vertical-align:middle}
 #nav .icon{width:24px;height:24px}.list-icon .icon{width:21px;height:21px}
 .icon-button .icon{width:22px;height:22px}
-.recipe-zone>.card-kind{display:block;margin:10px 0 0;padding:0 10px 5px;border:1px solid var(--line);border-left:4px solid var(--kind);border-radius:9px;background:var(--kind-bg);font-size:13px}
-.card-kind-monster{--kind:#d7a552;--kind-bg:rgba(215,165,82,.09)}
-.card-kind-spell{--kind:#40b9a5;--kind-bg:rgba(64,185,165,.09)}
-.card-kind-trap{--kind:#bb87d8;--kind-bg:rgba(187,135,216,.09)}
-.card-kind-unknown{--kind:#8593a3;--kind-bg:rgba(133,147,163,.08)}
-.card-kind-title{display:flex;align-items:center;gap:7px;min-height:38px;color:var(--text)}
-.card-kind-title .icon{width:16px;height:16px;color:var(--kind)}
-.card-kind-title small{margin-left:auto;color:var(--muted)}
-.card-kind .recipe-card-link:last-child{border-bottom:0}
 /* Decorative panels keep card information readable at a 375px viewport. */
 .page-head.illustrated{position:relative;display:flex;align-items:center;min-height:112px;isolation:isolate;overflow:hidden}
 .page-head-copy{position:relative;z-index:1;flex:1;min-width:0;padding-right:3px}

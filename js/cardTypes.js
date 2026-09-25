@@ -11,5 +11,5 @@ export function groupCards(cards=[]){
     .sort((a,b)=>a.name.localeCompare(b.name,'ja'))})).filter(group=>group.cards.length);
 }
 export function formatCards(cards=[]){
-  return groupCards(cards).map(group=>`【${group.label}】\n${group.cards.map(c=>`${c.count}《${c.name}》`).join('\n')}`).join('\n');
+  return cards.map(c=>`${c.count}《${c.name}》`).join('\n');
 }

@@ -1,5 +1,8 @@
 import {pct,stats,today} from './services.js';
 import {allPeriods} from './defaultPeriods.js';
+import {normalizeSearch} from './searchText.js';
+export const FREE_EVENT = 'フリー対戦';
+export const eventNameForMatch = (events,match) => events.find(e=>e.id===match.eventId)?.name?.trim()||FREE_EVENT;
 
 export function periodBounds(key,periods=[],from='',to='',now=today()){
   const day=n=>new Date(Date.parse(`${now}T00:00:00Z`)-n*86400000).toISOString().slice(0,10);
@@ -15,9 +18,11 @@ const tally=rows=>({total:rows.length,win:rows.filter(x=>x.result==='WIN').lengt
 export function analyze(data,filter={}){
   const [start,end]=periodBounds(filter.key||'all',data.periods||[],filter.from,filter.to,filter.now||today());
   const eventVenues=new Map(data.events.map(e=>[e.id,e.venue||'']));
+  const eventNames=new Map(data.events.map(e=>[e.id,e.name?.trim()||FREE_EVENT]));
   const eventRegulations=new Map(data.events.map(e=>[e.id,e.regulationId])),deckRegulations=new Map(data.decks.map(d=>[d.id,d.regulationId]));
   const regulation=allPeriods(data.periods||[]).find(p=>p.id===filter.regulation);
-  const matches=data.matches.filter(m=>m.playedAt>=start&&m.playedAt<=end&&(!filter.venue||eventVenues.get(m.eventId)===filter.venue)&&(!filter.regulation||(eventRegulations.get(m.eventId)||deckRegulations.get(m.deckId)||((regulation?.startDate<=m.playedAt&&m.playedAt<=regulation?.endDate)?regulation.id:null))===filter.regulation)).sort((a,b)=>a.playedAt.localeCompare(b.playedAt));
+  const eventQuery=normalizeSearch(filter.eventName);
+  const matches=data.matches.filter(m=>m.playedAt>=start&&m.playedAt<=end&&(!eventQuery||normalizeSearch(eventNames.get(m.eventId)||FREE_EVENT).includes(eventQuery))&&(!filter.venue||eventVenues.get(m.eventId)===filter.venue)&&(!filter.regulation||(eventRegulations.get(m.eventId)||deckRegulations.get(m.deckId)||((regulation?.startDate<=m.playedAt&&m.playedAt<=regulation?.endDate)?regulation.id:null))===filter.regulation)).sort((a,b)=>a.playedAt.localeCompare(b.playedAt));
   const idSet=new Set(matches.map(m=>m.id)),games=data.games.filter(g=>idSet.has(g.matchId));
   const groups=(key)=>{
     const map=new Map();for(const m of matches){const k=key(m);if(!map.has(k))map.set(k,[]);map.get(k).push(m);}
