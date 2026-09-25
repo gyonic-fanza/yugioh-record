@@ -29,8 +29,11 @@ export function analyze(data,filter={}){
     return [...map].map(([id,rows])=>{const set=new Set(rows.map(m=>m.id)),gs=games.filter(g=>set.has(g.matchId));return {id,records:rows.length,match:stats(rows.filter(m=>m.format==='MATCH'),[]).matches,game:tally(gs),first:tally(gs.filter(g=>g.turn==='FIRST')),second:tally(gs.filter(g=>g.turn==='SECOND'))};}).sort((a,b)=>b.match.total-a.match.total||b.game.total-a.game.total||String(a.id).localeCompare(String(b.id),'ja'));
   };
   const tags=new Map();for(const m of matches)for(const name of new Set(m.tags||[])){if(!tags.has(name))tags.set(name,[]);tags.get(name).push(m);}
-  const months=new Map();for(const m of matches.filter(m=>m.format==='MATCH')){const key=m.playedAt.slice(0,7);if(!months.has(key))months.set(key,[]);months.get(key).push(m);}
-  return {start,end,matches,games,match:tally(matches.filter(m=>m.format==='MATCH')),single:tally(matches.filter(m=>m.format==='SINGLE')),game:tally(games),first:tally(games.filter(g=>g.turn==='FIRST')),second:tally(games.filter(g=>g.turn==='SECOND')),decks:groups(m=>m.deckId),opponents:groups(m=>m.opponentDeckName),versions:groups(m=>m.deckVersionId),tags:[...tags].map(([name,rows])=>({name,total:rows.length,match:tally(rows.filter(m=>m.format==='MATCH')),single:tally(rows.filter(m=>m.format==='SINGLE'))})).sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'ja')),months:[...months].sort(([a],[b])=>a.localeCompare(b)).map(([month,rows])=>({month,...tally(rows)}))};
+  const monthTotals=format=>{
+    const months=new Map();for(const m of matches.filter(m=>m.format===format)){const key=m.playedAt.slice(0,7);if(!months.has(key))months.set(key,[]);months.get(key).push(m);}
+    return [...months].sort(([a],[b])=>a.localeCompare(b)).map(([month,rows])=>({month,...tally(rows)}));
+  };
+  return {start,end,matches,games,match:tally(matches.filter(m=>m.format==='MATCH')),single:tally(matches.filter(m=>m.format==='SINGLE')),game:tally(games),first:tally(games.filter(g=>g.turn==='FIRST')),second:tally(games.filter(g=>g.turn==='SECOND')),decks:groups(m=>m.deckId),opponents:groups(m=>m.opponentDeckName),versions:groups(m=>m.deckVersionId),tags:[...tags].map(([name,rows])=>({name,total:rows.length,match:tally(rows.filter(m=>m.format==='MATCH')),single:tally(rows.filter(m=>m.format==='SINGLE'))})).sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'ja')),months:monthTotals('MATCH'),singleMonths:monthTotals('SINGLE')};
 }
 
 function csvCell(value){let s=String(value??'');if(/^\s*[=+\-@]/.test(s))s="'"+s;return `"${s.replaceAll('"','""')}"`;}

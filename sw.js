@@ -1,5 +1,5 @@
 // App shell only: IndexedDB holds records; authentication and remote data are never cached.
-const CACHE = 'ocg-record-shell-v21';
+const CACHE = 'ocg-record-shell-v24';
 const SHELL = [
  './', './index.html', './manifest.webmanifest', './css/style.css', './css/luxe.css',
  './js/main.js', './js/storage.js', './js/services.js', './js/cloud.js',
