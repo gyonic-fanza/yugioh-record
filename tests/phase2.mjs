@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {analyze,battlesCsv,periodBounds,eventNameForMatch} from '../js/analysisService.js';
-import {renderAnalysis} from '../js/analysisView.js';
+import {renderAnalysis,trend} from '../js/analysisView.js';
 import {AppService,validateBackup} from '../js/services.js';
 import {STORES} from '../js/storage.js';
 class MemoryRepo{constructor(){this.tables=Object.fromEntries(STORES.map(s=>[s,new Map()]));}async list(s){return [...this.tables[s].values()];}async get(s,id){return this.tables[s].get(id);}async put(s,x){this.tables[s].set(x.id,structuredClone(x));}async remove(s,id){this.tables[s].delete(id);}async snapshot(){return Object.fromEntries(STORES.map(s=>[s,[...this.tables[s].values()]]));}async replaceAll(data){for(const s of STORES)this.tables[s]=new Map(data[s].map(x=>[x.id,x]));}async merge(data){for(const s of STORES)for(const x of data[s])await this.put(s,x);}}
@@ -18,6 +18,7 @@ const data={decks:[{id:'d1',name:'烙印'}],deckVersions:[{id:'v1',deckId:'d1',l
 {id:'g4',matchId:'m2',number:1,turn:'FIRST',result:'LOSS'},{id:'g5',matchId:'m2',number:2,turn:'SECOND',result:'LOSS'},
 {id:'g6',matchId:'m3',number:1,turn:'FIRST',result:'DRAW'},{id:'g7',matchId:'s1',number:1,turn:'SECOND',result:'WIN'}],tags:[]};
 const a=analyze(data,{key:`period:${period.id}`});assert.equal(a.match.total,3);assert.equal(a.match.win,1);assert.equal(a.match.rate,'33.3%');assert.equal(a.single.total,1);assert.equal(a.game.total,7);assert.equal(a.game.win,3);assert.equal(a.first.total,3);assert.equal(a.second.total,4);assert.equal(a.months.length,3);assert.equal(a.opponents.find(x=>x.id==='エルフェンノーツ').match.total,2);assert.equal(a.versions.find(x=>x.id==='v1').match.rate,'100%');assert.equal(a.versions.find(x=>x.id==='v2').match.rate,'0%');assert.equal(a.tags.find(x=>x.name==='事故').match.win,1);assert.equal(a.tags.find(x=>x.name==='事故').single.win,1);
+assert(trend(undefined,'SINGLE').includes('該当するデータはありません'),'旧版の集計結果が読み込まれてもANALYSISを止めない');
 assert.deepEqual(a.singleMonths.map(x=>[x.month,x.total,x.win,x.rate]),[['2026-09',1,1,'100%']]);
 assert.equal(analyze(data,{eventName:'ランキ'}).singleMonths.length,0);
 assert.equal(analyze(data,{eventName:'ランキ'}).match.total,1);
