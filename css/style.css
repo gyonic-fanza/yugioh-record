@@ -60,3 +60,5 @@ button.primary{background:linear-gradient(135deg,var(--accent),color-mix(in srgb
 .opponent-options mark{background:color-mix(in srgb,var(--accent) 30%,transparent);color:var(--text);border-radius:3px}
 .combo-hint{display:block;margin-top:5px;color:var(--muted);font-size:11px}
 @media(max-width:390px){.event-deck-link{gap:5px}.event-deck-link img{width:32px}.event-deck-link button{padding:6px;font-size:11px}}
+
+.recipe-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.recipe-actions button{flex:1 1 190px}

@@ -53,6 +53,22 @@ export class IndexedDBRepository{
     read.onsuccess=()=>{for(const g of read.result)if(g.matchId===id)gs.delete(g.id);ms.delete(id);};
     tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error||Error('削除が中断されました'));
   }));}
+  deleteVersionGraph(id){return this.withConnection(db=>new Promise((resolve,reject)=>{
+    const tx=db.transaction(['deckVersions','decks','matches'],'readwrite'),versions=tx.objectStore('deckVersions'),decks=tx.objectStore('decks'),matches=tx.objectStore('matches');
+    const versionRequest=versions.get(id),matchesRequest=matches.getAll(),now=stamp();
+    let unlinked=0,missing=false;
+    versionRequest.onsuccess=()=>{
+      const version=versionRequest.result;
+      if(!version){missing=true;tx.abort();return;}
+      versions.delete(id);
+      const deckRequest=decks.get(version.deckId);
+      deckRequest.onsuccess=()=>{if(deckRequest.result)decks.put({...deckRequest.result,updatedAt:now});};
+    };
+    matchesRequest.onsuccess=()=>{for(const match of matchesRequest.result){if(match.deckVersionId!==id)continue;unlinked++;matches.put({...match,deckVersionId:null,updatedAt:now});}};
+    tx.oncomplete=()=>resolve({unlinked});
+    tx.onabort=()=>reject(missing?Error('レシピ版が見つかりません'):tx.error||Error('レシピの削除に失敗しました'));
+    tx.onerror=()=>{};
+  }));}
   async snapshot(){const out={};for(const s of STORES)out[s]=await this.list(s);return out;}
   replaceAllIfUnchanged(expected,data){return this.withConnection(db=>new Promise((resolve,reject)=>{
     const tx=db.transaction(STORES,'readwrite'),current={},requests=STORES.map(store=>({store,request:tx.objectStore(store).getAll()}));
